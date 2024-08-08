@@ -156,7 +156,6 @@ local function getTelescopeOpts(state, path)
 end
 
 local DEBOUNCE_DELAY = 300
-<<<<<<< HEAD
 local copilot_enabled = true
 
 local timer = vim.loop.new_timer()
@@ -164,10 +163,8 @@ local function debouncedCopilotSuggest()
   if not copilot_enabled then
     return
   end
-=======
 local timer = vim.loop.new_timer()
 local function debouncedCopilotSuggest()
->>>>>>> ab414de (Sync)
   timer:stop()
   timer:start(
     DEBOUNCE_DELAY,
@@ -213,15 +210,10 @@ vim.opt.foldmethod = 'indent'
 vim.opt.foldenable = false
 vim.opt.relativenumber = true
 vim.opt.ignorecase = true
-<<<<<<< HEAD
 vim.opt.makeprg =
 "yarn tsc \\| sed 's/(\\(.*\\),\\(.*\\)):/:\\1:\\2:/' \\| sed 's/@cresta/packages/' \\| sed 's/:\\ /\\//g'"
 vim.opt.tabstop = 4
 vim.opt.wrap = false
-=======
-vim.opt.makeprg = "yarn tsc \\| sed 's/(\\(.*\\),\\(.*\\)):/:\\1:\\2:/' \\| sed 's/@cresta/packages/' \\| sed 's/:\\ /\\//g'"
-vim.opt.tabstop = 4
->>>>>>> ab414de (Sync)
 
 -- Enable mouse mode, can be useful for resizing splits for example!
 vim.opt.mouse = 'a'
@@ -424,8 +416,6 @@ vim.opt.hlsearch = true
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 
 -- Diagnostic keymaps
-<<<<<<< HEAD
-=======
 -- Normal mode mappings
 vim.keymap.set('n', '<C-f>', function()
   vim.lsp.buf.execute_command { command = '_typescript.organizeImports', arguments = { vim.fn.expand '%:p' } }
@@ -449,7 +439,8 @@ end, { desc = 'Decrease scale' })
 vim.keymap.set('n', '<C-s>', ':wa<cr>', { desc = 'Save all files' })
 vim.keymap.set('n', '<C-t>', 'A // TODO(flatplate)<esc>', { desc = 'Add todo' })
 vim.keymap.set('n', '<C-q>', '<C-w>q', { desc = 'Close current panel' })
-vim.keymap.set('n', osDependentConfig { windows = '<C-\\>', default = "<C-'>" }, ':ToggleTerm<CR>', { desc = 'Open toggle term' })
+vim.keymap.set('n', osDependentConfig { windows = '<C-\\>', default = "<C-'>" }, ':ToggleTerm<CR>',
+  { desc = 'Open toggle term' })
 vim.keymap.set('n', '<C-p>', '"qp', { desc = 'Paste from register q' })
 vim.keymap.set('n', '<c-cr>', vim.lsp.buf.code_action, { desc = 'Code action' })
 vim.keymap.set('n', '<c-s-tab>', function()
@@ -506,16 +497,6 @@ vim.keymap.set('n', '<leader>gl', ':Git blame<CR>', { desc = 'Git blame' })
 vim.keymap.set('n', 'gv', ':vsplit<CR>gd', { desc = 'Split and go to definition' })
 vim.keymap.set('n', '<leader>sr', 'yiw:%s/<C-R>*', { desc = 'Search and replace word under cursor (file)' })
 vim.keymap.set('n', '<leader>ss', 'yiw:s/<C-R>*/', { desc = 'Search and replace word under cursor (line)' })
-vim.keymap.set('n', ']g', require('gitsigns').next_hunk, { desc = 'Jump to next git hunk' })
-vim.keymap.set('n', '[g', require('gitsigns').prev_hunk, { desc = 'Jump to previous git hunk' })
-vim.keymap.set('n', '<leader>gh', require('gitsigns').stage_hunk, { desc = 'Stage hunk' })
-vim.keymap.set('n', '<leader>gr', require('gitsigns').reset_hunk, { desc = 'Reset hunk' })
--- vim.keymap.set('v', '<leader>hs', function() require('gitsigns').stage_hunk {vim.fn.line('.'), vim.fn.line('v')} end)
--- vim.keymap.set('v', '<leader>hr', function() require('gitsigns').reset_hunk {vim.fn.line('.'), vim.fn.line('v')} end)
-vim.keymap.set('n', '<leader>gb', require('gitsigns').stage_buffer, { desc = 'Stage buffer' })
-vim.keymap.set('n', '<leader>gu', require('gitsigns').undo_stage_hunk, { desc = 'Undo stage hunk' })
-vim.keymap.set('n', '<leader>gR', require('gitsigns').reset_buffer, { desc = 'Reset buffer' })
-vim.keymap.set('n', '<leader>gp', require('gitsigns').preview_hunk, { desc = 'Preview hunk' })
 vim.keymap.set('n', '<leader>bb', function()
   require('harpoon.mark').add_file()
 end, { desc = 'Add file to harpoon' })
@@ -537,7 +518,8 @@ end, { desc = 'Telescope LSP references' })
 
 -- Terminal mode mappings
 vim.keymap.set('t', '<esc>', '<C-\\><C-n>', { desc = 'To normal mode in terminal' })
-vim.keymap.set('t', osDependentConfig { windows = '<C-\\>', default = "<C-'>" }, '<C-\\><C-n>:ToggleTerm<CR>', { desc = 'Close toggle term' })
+vim.keymap.set('t', osDependentConfig { windows = '<C-\\>', default = "<C-'>" }, '<C-\\><C-n>:ToggleTerm<CR>',
+  { desc = 'Close toggle term' })
 
 -- Insert mode mappings
 vim.keymap.set('i', '<C-p>', '<esc>:Telescope oldfiles<CR>', { desc = 'Find old files' })
@@ -549,8 +531,10 @@ vim.keymap.set('i', 'jj', '<esc>', { desc = 'jj to escape' })
 vim.keymap.set('i', '<c-l>', function()
   return vim.fn['copilot#Accept'] '<CR>'
 end, { expr = true, silent = true, noremap = true, replace_keycodes = false, desc = 'Accept Copilot suggestion' })
-vim.keymap.set('i', '<c-d>', '<c-o>dd', { silent = true, noremap = true, replace_keycodes = false, desc = 'Delete line in insert mode' })
-vim.keymap.set('i', '<c-h>', '<C-o>diW', { silent = true, noremap = true, replace_keycodes = false, desc = 'Delete WORD' })
+vim.keymap.set('i', '<c-d>', '<c-o>dd',
+  { silent = true, noremap = true, replace_keycodes = false, desc = 'Delete line in insert mode' })
+vim.keymap.set('i', '<c-h>', '<C-o>diW',
+  { silent = true, noremap = true, replace_keycodes = false, desc = 'Delete WORD' })
 
 -- vim.keymap.set('i', '<c-i>', function()
 --   require('cmp').mapping.complete()
@@ -576,7 +560,6 @@ vim.opt.hlsearch = true
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 
 -- Diagnostic keymaps
->>>>>>> ab414de (Sync)
 vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, { desc = 'Go to previous [D]iagnostic message' })
 vim.keymap.set('n', ']d', vim.diagnostic.goto_next, { desc = 'Go to next [D]iagnostic message' })
 -- vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, { desc = 'Show diagnostic [E]rror messages' })
@@ -641,13 +624,10 @@ vim.api.nvim_create_user_command('CopyFileAndLine', function(opts)
   vim.cmd 'let @*=join([expand("%"),  line(".")], ":")'
 end, { nargs = 0 })
 
-<<<<<<< HEAD
 vim.api.nvim_create_user_command('ToggleCopilot', function(opts)
   copilot_enabled = not copilot_enabled
 end, { nargs = 0 })
 
-=======
->>>>>>> ab414de (Sync)
 vim.api.nvim_create_user_command('CloseAllBuffers', function(opts)
   vim.cmd '%bd|e#'
 end, { nargs = 0 })
@@ -802,10 +782,6 @@ require('lazy').setup({
         },
         ignore_blank_lines = true, -- ignore blank lines when sending visual select lines
       }
-<<<<<<< HEAD
-=======
-      vim.cmd.colorscheme 'noirbuddy'
->>>>>>> ab414de (Sync)
 
       -- You can configure highlights by doing something like:
       vim.cmd.hi 'Comment gui=none'
@@ -861,11 +837,7 @@ require('lazy').setup({
     end,
   },
   -- { 'HiPhish/rainbow-delimiters.nvim', lazy = false },
-<<<<<<< HEAD
-  { 'tpope/vim-fugitive',         lazy = false },
-=======
   { 'tpope/vim-fugitive', lazy = false },
->>>>>>> ab414de (Sync)
   {
     'toggleterm.nvim',
     opts = {
@@ -874,11 +846,7 @@ require('lazy').setup({
       size = 80,
     },
   },
-<<<<<<< HEAD
-  { 'goolord/alpha-nvim',               lazy = false },
-=======
   { 'goolord/alpha-nvim', lazy = false },
->>>>>>> ab414de (Sync)
   {
     'jesseleite/nvim-noirbuddy',
     dependencies = {
@@ -890,7 +858,6 @@ require('lazy').setup({
       -- All of your `setup(opts)` will go here
     },
   },
-<<<<<<< HEAD
   {
     'ellisonleao/gruvbox.nvim',
     lazy = false,
@@ -934,51 +901,11 @@ require('lazy').setup({
       vim.cmd.hi 'Comment gui=none'
     end,
   },
-=======
-  -- {
-  --   'ellisonleao/gruvbox.nvim',
-  --   lazy = false,
-  --   config = function()
-  --     require('gruvbox').setup {
-  --       palette_overrides = {
-  --         dark0 = '#111313',
-  --         dark0_hard = '#111313',
-  --         dark1 = '#1c1f1f',
-  --         dark2 = '#222626',
-  --         dark3 = '#333939',
-  --         bright_red = '#f55954',
-  --         bright_green = '#babb56',
-  --         bright_yellow = '#f9bc51',
-  --         bright_blue = '#83a5a8',
-  --         bright_purple = '#d3869b',
-  --         bright_aqua = '#8ec07c',
-  --         bright_orange = '#f38d46',
-  --         neutral_red = '#da341d',
-  --         neutral_green = '#98974a',
-  --         neutral_yellow = '#c7a931',
-  --         neutral_blue = '#457598',
-  --         neutral_purple = '#d17296',
-  --         neutral_aqua = '#689d6a',
-  --         neutral_orange = '#d65d3e',
-  --         faded_red = '#FFF',
-  --         faded_green = '#39540e',
-  --         faded_yellow = '#856614',
-  --         faded_blue = '#033658',
-  --         faded_purple = '#6f2f61',
-  --         faded_aqua = '#225b38',
-  --         faded_orange = '#8e423e',
-  --         gray = '#828389',
-  --       },
-  --       contrast = 'hard',
-  --     }
-
-  --     vim.cmd.colorscheme 'gruvbox'
-
+       vim.cmd.colorscheme 'gruvbox'
   --     -- You can configure highlights by doing something like:
   --     vim.cmd.hi 'Comment gui=none'
   --   end,
   -- },
->>>>>>> ab414de (Sync)
   -- You can also add new plugins here as well:
   { 'prochri/telescope-all-recent.nvim' },
   {
@@ -988,30 +915,18 @@ require('lazy').setup({
     end,
     lazy = false,
   },
-<<<<<<< HEAD
-  { 'MattesGroeger/vim-bookmarks',  lazy = false },
-=======
   { 'MattesGroeger/vim-bookmarks', lazy = false },
->>>>>>> ab414de (Sync)
   {
     'tom-anders/telescope-vim-bookmarks.nvim',
     config = function()
       require('telescope').load_extension 'vim_bookmarks'
     end,
   },
-<<<<<<< HEAD
   { 'github/copilot.vim',           lazy = false },
   { 'alvan/vim-closetag',           lazy = false },
   { 'tpope/vim-fugitive',           lazy = false },
   { 'FooSoft/vim-argwrap',          lazy = false },
   { 'mattn/emmet-vim',              lazy = false },
-=======
-  { 'github/copilot.vim', lazy = false },
-  { 'alvan/vim-closetag', lazy = false },
-  { 'tpope/vim-fugitive', lazy = false },
-  { 'FooSoft/vim-argwrap', lazy = false },
-  { 'mattn/emmet-vim', lazy = false },
->>>>>>> ab414de (Sync)
   { 'ludovicchabant/vim-gutentags', lazy = false },
   {
     'kylechui/nvim-surround',
@@ -1022,7 +937,6 @@ require('lazy').setup({
     end,
     lazy = false,
   },
-<<<<<<< HEAD
   { 'fatih/vim-go',              lazy = false },
   -- { 'sbdchd/neoformat', lazy = false },
   { 'petertriho/nvim-scrollbar', lazy = false },
@@ -1045,14 +959,26 @@ require('lazy').setup({
   -- All other entries override the setup() call for default plugins
   --
   { 'numToStr/Comment.nvim',    opts = {} },
-=======
-  { 'fatih/vim-go', lazy = false },
-  -- { 'sbdchd/neoformat', lazy = false },
   { 'petertriho/nvim-scrollbar', lazy = false },
+  {
+    'lewis6991/gitsigns.nvim',
+    lazy = false,
+    config = function()
+      vim.keymap.set('n', ']g', require('gitsigns').next_hunk, { desc = 'Jump to next git hunk' })
+      vim.keymap.set('n', '[g', require('gitsigns').prev_hunk, { desc = 'Jump to previous git hunk' })
+      vim.keymap.set('n', '<leader>gh', require('gitsigns').stage_hunk, { desc = 'Stage hunk' })
+      vim.keymap.set('n', '<leader>gr', require('gitsigns').reset_hunk, { desc = 'Reset hunk' })
+      -- vim.keymap.set('v', '<leader>hs', function() require('gitsigns').stage_hunk {vim.fn.line('.'), vim.fn.line('v')} end)
+      -- vim.keymap.set('v', '<leader>hr', function() require('gitsigns').reset_hunk {vim.fn.line('.'), vim.fn.line('v')} end)
+      vim.keymap.set('n', '<leader>gb', require('gitsigns').stage_buffer, { desc = 'Stage buffer' })
+      vim.keymap.set('n', '<leader>gu', require('gitsigns').undo_stage_hunk, { desc = 'Undo stage hunk' })
+      vim.keymap.set('n', '<leader>gR', require('gitsigns').reset_buffer, { desc = 'Reset buffer' })
+      vim.keymap.set('n', '<leader>gp', require('gitsigns').preview_hunk, { desc = 'Preview hunk' })
+    end
+  },
   -- All other entries override the setup() call for default plugins
   --
   { 'numToStr/Comment.nvim', opts = {} },
->>>>>>> ab414de (Sync)
 
   -- Here is a more advanced example where we pass configuration
   -- options to `gitsigns.nvim`. This is equivalent to the following Lua:
@@ -1283,10 +1209,13 @@ require('lazy').setup({
 
       -- Useful status updates for LSP.
       -- NOTE: `opts = {}` is the same as calling `require('fidget').setup({})`
-      { 'j-hui/fidget.nvim', opts = {} },
+      { 'j-hui/fidget.nvim',       opts = {} },
 
       -- Allows extra capabilities provided by nvim-cmp
       'hrsh7th/cmp-nvim-lsp',
+      -- `neodev` configures Lua LSP for your Neovim config, runtime and plugins
+      -- used for completion, annotations and signatures of Neovim apis
+      { 'folke/neodev.nvim',       opts = {} },
     },
     config = function()
       -- Brief aside: **What is LSP?**
@@ -1531,47 +1460,6 @@ require('lazy').setup({
       },
     },
   },
-<<<<<<< HEAD
-=======
-=======
-  -- { -- Autoformat
-  --   'stevearc/conform.nvim',
-  --   lazy = false,
-  --   keys = {
-  --     {
-  --       '<leader>f',
-  --       function()
-  --         require('conform').format { async = true, lsp_fallback = true }
-  --       end,
-  --       mode = '',
-  --       desc = '[F]ormat buffer',
-  --     },
-  --   },
-  --   opts = {
-  --     notify_on_error = false,
-  --     format_on_save = function(bufnr)
-  --       -- Disable "format_on_save lsp_fallback" for languages that don't
-  --       -- have a well standardized coding style. You can add additional
-  --       -- languages here or re-enable it for the disabled ones.
-  --       local disable_filetypes = { c = true, cpp = true }
-  --       return {
-  --         timeout_ms = 500,
-  --         lsp_fallback = not disable_filetypes[vim.bo[bufnr].filetype],
-  --       }
-  --     end,
-  --     formatters_by_ft = {
-  --       lua = { 'stylua' },
-  --       -- Conform can also run multiple formatters sequentially
-  --       -- python = { "isort", "black" },
-  --       --
-  --       -- You can use a sub-list to tell conform to run *until* a formatter
-  --       -- is found.
-  --       -- javascript = { { "prettierd", "prettier" } },
-  --     },
-  --   },
-  -- },
-
->>>>>>> ab414de (Sync)
   { -- Autocompletion
     'hrsh7th/nvim-cmp',
     event = 'InsertEnter',
@@ -1765,8 +1653,6 @@ require('lazy').setup({
         if file then
           local content = file:read('*all')
           file:close()
-
-<<<<<<< HEAD
           -- Use the content as prompt
           elelem.ask_next_change(content, next_action_model)
           return
@@ -1793,8 +1679,6 @@ require('lazy').setup({
     end
   },
 
-=======
->>>>>>> ab414de (Sync)
   -- Highlight todo, notes, etc in comments
   { 'folke/todo-comments.nvim', event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
   {
