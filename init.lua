@@ -155,6 +155,17 @@ local function getTelescopeOpts(state, path)
   }
 end
 
+local set_colorscheme = function()
+  -- Colorscheme based on cwd
+  -- if cwd is go-servers use gruvbox
+  local cwd = vim.fn.getcwd()
+  if cwd:find 'go%-servers' then
+    vim.cmd 'colorscheme gruvbox'
+    return
+  end
+  vim.cmd 'colorscheme boring'
+end
+
 local DEBOUNCE_DELAY = 300
 local copilot_enabled = true
 
@@ -602,6 +613,15 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   end,
 })
 
+-- Add autocommand to run on DirChanged and call set_colorscheme
+vim.api.nvim_create_autocmd('DirChanged', {
+  desc = 'Set colorscheme based on cwd',
+  group = vim.api.nvim_create_augroup('kickstart-set-colorscheme', { clear = true }),
+  callback = function()
+    set_colorscheme()
+  end,
+})
+
 vim.api.nvim_create_augroup('packer_conf', { clear = true })
 vim.api.nvim_create_autocmd('BufWritePost', {
   desc = 'Sync packer after modifying plugins.lua',
@@ -837,7 +857,10 @@ require('lazy').setup({
     end,
   },
   -- { 'HiPhish/rainbow-delimiters.nvim', lazy = false },
-  { 'tpope/vim-fugitive', lazy = false },
+  {
+    'tpope/vim-fugitive',
+    lazy = false
+  },
   {
     'toggleterm.nvim',
     opts = {
@@ -848,15 +871,47 @@ require('lazy').setup({
   },
   { 'goolord/alpha-nvim', lazy = false },
   {
-    'jesseleite/nvim-noirbuddy',
-    dependencies = {
-      { 'tjdevries/colorbuddy.nvim' }
-    },
+    'ellisonleao/gruvbox.nvim',
     lazy = false,
-    priority = 1000,
-    opts = {
-      -- All of your `setup(opts)` will go here
-    },
+    config = function()
+      require('gruvbox').setup {
+        palette_overrides = {
+          dark0 = '#111313',
+          dark0_hard = '#111313',
+          dark1 = '#1c1f1f',
+          dark2 = '#222626',
+          dark3 = '#333939',
+          bright_red = '#f55954',
+          bright_green = '#babb56',
+          bright_yellow = '#f9bc51',
+          bright_blue = '#83a5a8',
+          bright_purple = '#d3869b',
+          bright_aqua = '#8ec07c',
+          bright_orange = '#f38d46',
+          neutral_red = '#da341d',
+          neutral_green = '#98974a',
+          neutral_yellow = '#c7a931',
+          neutral_blue = '#457598',
+          neutral_purple = '#d17296',
+          neutral_aqua = '#689d6a',
+          neutral_orange = '#d65d3e',
+          faded_red = '#FFF',
+          faded_green = '#39540e',
+          faded_yellow = '#856614',
+          faded_blue = '#033658',
+          faded_purple = '#6f2f61',
+          faded_aqua = '#225b38',
+          faded_orange = '#8e423e',
+          gray = '#828389',
+        },
+        contrast = 'hard',
+      }
+
+      vim.cmd.colorscheme 'gruvbox'
+
+      -- You can configure highlights by doing something like:
+      vim.cmd.hi 'Comment gui=none'
+    end,
   },
   {
     'ellisonleao/gruvbox.nvim',
@@ -922,7 +977,7 @@ require('lazy').setup({
       require('telescope').load_extension 'vim_bookmarks'
     end,
   },
-  { 'github/copilot.vim',           lazy = false },
+  { 'github/copilot.vim',          lazy = false },
   { 'alvan/vim-closetag',           lazy = false },
   { 'tpope/vim-fugitive',           lazy = false },
   { 'FooSoft/vim-argwrap',          lazy = false },
@@ -996,6 +1051,18 @@ require('lazy').setup({
         changedelete = { text = '~' },
       },
     },
+    config = function()
+      vim.keymap.set('n', ']g', require('gitsigns').next_hunk, { desc = 'Jump to next git hunk' })
+      vim.keymap.set('n', '[g', require('gitsigns').prev_hunk, { desc = 'Jump to previous git hunk' })
+      vim.keymap.set('n', '<leader>gh', require('gitsigns').stage_hunk, { desc = 'Stage hunk' })
+      vim.keymap.set('n', '<leader>gr', require('gitsigns').reset_hunk, { desc = 'Reset hunk' })
+      -- vim.keymap.set('v', '<leader>hs', function() require('gitsigns').stage_hunk {vim.fn.line('.'), vim.fn.line('v')} end)
+      -- vim.keymap.set('v', '<leader>hr', function() require('gitsigns').reset_hunk {vim.fn.line('.'), vim.fn.line('v')} end)
+      vim.keymap.set('n', '<leader>gb', require('gitsigns').stage_buffer, { desc = 'Stage buffer' })
+      vim.keymap.set('n', '<leader>gu', require('gitsigns').undo_stage_hunk, { desc = 'Undo stage hunk' })
+      vim.keymap.set('n', '<leader>gR', require('gitsigns').reset_buffer, { desc = 'Reset buffer' })
+      vim.keymap.set('n', '<leader>gp', require('gitsigns').preview_hunk, { desc = 'Preview hunk' })
+    end
   },
 
   -- NOTE: Plugins can also be configured to run Lua code when they are loaded.
@@ -1097,6 +1164,7 @@ require('lazy').setup({
 
       -- Useful for getting pretty icons, but requires a Nerd Font.
       { 'nvim-tree/nvim-web-devicons',            enabled = vim.g.have_nerd_font },
+      { "isak102/telescope-git-file-history.nvim" }
     },
     config = function()
       -- Telescope is a fuzzy finder that comes with a lot of different things that
@@ -1145,6 +1213,7 @@ require('lazy').setup({
       -- Enable Telescope extensions if they are installed
       pcall(require('telescope').load_extension, 'fzf')
       pcall(require('telescope').load_extension, 'ui-select')
+      pcall(require('telescope').load_extension, 'git_file_history')
 
       -- See `:help telescope.builtin`
       local builtin = require 'telescope.builtin'
@@ -1705,32 +1774,32 @@ require('lazy').setup({
       --  - ci'  - [C]hange [I]nside [']quote
       require('mini.ai').setup { n_lines = 500 }
 
-      -- Add/delete/replace surroundings (brackets, quotes, etc.)
-      --
-      -- - saiw) - [S]urround [A]dd [I]nner [W]ord [)]Paren
-      -- - sd'   - [S]urround [D]elete [']quotes
-      -- - sr)'  - [S]urround [R]eplace [)] [']
-      require('mini.surround').setup()
+  --    -- Add/delete/replace surroundings (brackets, quotes, etc.)
+  --    --
+  --    -- - saiw) - [S]urround [A]dd [I]nner [W]ord [)]Paren
+  --    -- - sd'   - [S]urround [D]elete [']quotes
+  --    -- - sr)'  - [S]urround [R]eplace [)] [']
+  --    require('mini.surround').setup()
 
-      -- Simple and easy statusline.
-      --  You could remove this setup call if you don't like it,
-      --  and try some other statusline plugin
-      local statusline = require 'mini.statusline'
-      -- set use_icons to true if you have a Nerd Font
-      statusline.setup { use_icons = vim.g.have_nerd_font }
+  --    -- Simple and easy statusline.
+  --    --  You could remove this setup call if you don't like it,
+  --    --  and try some other statusline plugin
+  --    local statusline = require 'mini.statusline'
+  --    -- set use_icons to true if you have a Nerd Font
+  --    statusline.setup { use_icons = vim.g.have_nerd_font }
 
-      -- You can configure sections in the statusline by overriding their
-      -- default behavior. For example, here we set the section for
-      -- cursor location to LINE:COLUMN
-      ---@diagnostic disable-next-line: duplicate-set-field
-      statusline.section_location = function()
-        return '%2l:%-2v'
-      end
+  --    -- You can configure sections in the statusline by overriding their
+  --    -- default behavior. For example, here we set the section for
+  --    -- cursor location to LINE:COLUMN
+  --    ---@diagnostic disable-next-line: duplicate-set-field
+  --    statusline.section_location = function()
+  --      return '%2l:%-2v'
+  --    end
 
-      -- ... and there is more!
-      --  Check out: https://github.com/echasnovski/mini.nvim
-    end,
-  },
+  --    -- ... and there is more!
+  --    --  Check out: https://github.com/echasnovski/mini.nvim
+  --  end,
+  --},
   { -- Highlight, edit, and navigate code
     'nvim-treesitter/nvim-treesitter',
     build = ':TSUpdate',
@@ -1801,5 +1870,6 @@ require('lazy').setup({
   },
 })
 
+set_colorscheme()
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et[Append here]
