@@ -155,17 +155,6 @@ local function getTelescopeOpts(state, path)
   }
 end
 
-local set_colorscheme = function()
-  -- Colorscheme based on cwd
-  -- if cwd is go-servers use gruvbox
-  local cwd = vim.fn.getcwd()
-  if cwd:find 'go%-servers' then
-    vim.cmd 'colorscheme gruvbox'
-    return
-  end
-  vim.cmd 'colorscheme boring'
-end
-
 local DEBOUNCE_DELAY = 300
 local copilot_enabled = true
 
@@ -434,8 +423,8 @@ vim.keymap.set('n', '<C-f>', function()
     vim.lsp.buf.format()
     vim.defer_fn(function()
       vim.cmd 'EslintFixAll'
-    end, 10)
-  end, 10)
+    end, 50)
+  end, 50)
 end, { desc = 'Organize imports and ESLint fix' })
 
 vim.keymap.set('n', '<leader>se', function()
@@ -463,11 +452,15 @@ vim.keymap.set('n', '<c-`>', function()
 end, { desc = 'Show marks' })
 vim.keymap.set('n', '<leader>a', ':ArgWrap<cr>', { desc = 'Argument wrapping' })
 vim.keymap.set('n', '<leader>df', ':GoPrintlnFileLine<CR>', { desc = 'Go print file line' })
+vim.keymap.set('n', '<leader>dt', ":pu=strftime('%c')<CR>", { desc = 'Insert current time at cursor' })
 vim.keymap.set('n', '<leader>nd', function()
   vim.notify.dismiss()
 end, { desc = 'Dismiss notifications' })
 vim.keymap.set('n', '<c-s-n>', ':cp<cr>', { desc = 'Previous quickfix item' })
 vim.keymap.set('n', '<c-n>', ':cn<cr>', { desc = 'Next quickfix item' })
+vim.keymap.set('n', '<leader>nn', function()
+  vim.cmd('edit ~/notes.md')
+end, { desc = 'Switch to notes file' })
 
 -- Telescope mappings
 vim.keymap.set('n', '<leader>fq', function()
@@ -618,7 +611,7 @@ vim.api.nvim_create_autocmd('DirChanged', {
   desc = 'Set colorscheme based on cwd',
   group = vim.api.nvim_create_augroup('kickstart-set-colorscheme', { clear = true }),
   callback = function()
-    set_colorscheme()
+    vim.cmd 'silent! colorscheme gruvbox'
   end,
 })
 
@@ -642,6 +635,10 @@ end, { nargs = 1 })
 
 vim.api.nvim_create_user_command('CopyFileAndLine', function(opts)
   vim.cmd 'let @*=join([expand("%"),  line(".")], ":")'
+end, { nargs = 0 })
+
+vim.api.nvim_create_user_command('OpenLLMSearchBuffer', function(opts)
+  vim.api.nvim_win_set_buf(vim.api.nvim_get_current_win(), vim.fn.bufnr("LLM Search Results"))
 end, { nargs = 0 })
 
 vim.api.nvim_create_user_command('ToggleCopilot', function(opts)
@@ -977,7 +974,7 @@ require('lazy').setup({
       require('telescope').load_extension 'vim_bookmarks'
     end,
   },
-  { 'github/copilot.vim',          lazy = false },
+  { 'github/copilot.vim',           lazy = false },
   { 'alvan/vim-closetag',           lazy = false },
   { 'tpope/vim-fugitive',           lazy = false },
   { 'FooSoft/vim-argwrap',          lazy = false },
@@ -1034,7 +1031,6 @@ require('lazy').setup({
   -- All other entries override the setup() call for default plugins
   --
   { 'numToStr/Comment.nvim', opts = {} },
-
   -- Here is a more advanced example where we pass configuration
   -- options to `gitsigns.nvim`. This is equivalent to the following Lua:
   --    require('gitsigns').setup({ ... })
@@ -1645,8 +1641,7 @@ require('lazy').setup({
     end,
   },
   {
-    dir = "~/Projects/elelem.nvim",
-    dev = true,
+    "flatplate/elelem.nvim",
     config = function()
       local elelem = require("elelem")
       elelem.setup({
