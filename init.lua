@@ -1,5 +1,5 @@
 --[[init
-
+init
 =====================================================================
 ==================== READ THIS BEFORE CONTINUING ====================
 =====================================================================
@@ -706,49 +706,49 @@ require('lazy').setup({
       -- All of your `setup(opts)` will go here
     },
   },
-   {
-     'ellisonleao/gruvbox.nvim',
-     lazy = false,
-     config = function()
-       require('gruvbox').setup {
-         palette_overrides = {
-           dark0 = '#111313',
-           dark0_hard = '#111313',
-           dark1 = '#1c1f1f',
-           dark2 = '#222626',
-           dark3 = '#333939',
-           bright_red = '#f55954',
-           bright_green = '#babb56',
-           bright_yellow = '#f9bc51',
-           bright_blue = '#83a5a8',
-           bright_purple = '#d3869b',
-           bright_aqua = '#8ec07c',
-           bright_orange = '#f38d46',
-           neutral_red = '#da341d',
-           neutral_green = '#98974a',
-           neutral_yellow = '#c7a931',
-           neutral_blue = '#457598',
-           neutral_purple = '#d17296',
-           neutral_aqua = '#689d6a',
-           neutral_orange = '#d65d3e',
-           faded_red = '#FFF',
-           faded_green = '#39540e',
-           faded_yellow = '#856614',
-           faded_blue = '#033658',
-           faded_purple = '#6f2f61',
-           faded_aqua = '#225b38',
-           faded_orange = '#8e423e',
-           gray = '#828389',
-         },
-         contrast = 'hard',
-       }
+  {
+    'ellisonleao/gruvbox.nvim',
+    lazy = false,
+    config = function()
+      require('gruvbox').setup {
+        palette_overrides = {
+          dark0 = '#111313',
+          dark0_hard = '#111313',
+          dark1 = '#1c1f1f',
+          dark2 = '#222626',
+          dark3 = '#333939',
+          bright_red = '#f55954',
+          bright_green = '#babb56',
+          bright_yellow = '#f9bc51',
+          bright_blue = '#83a5a8',
+          bright_purple = '#d3869b',
+          bright_aqua = '#8ec07c',
+          bright_orange = '#f38d46',
+          neutral_red = '#da341d',
+          neutral_green = '#98974a',
+          neutral_yellow = '#c7a931',
+          neutral_blue = '#457598',
+          neutral_purple = '#d17296',
+          neutral_aqua = '#689d6a',
+          neutral_orange = '#d65d3e',
+          faded_red = '#FFF',
+          faded_green = '#39540e',
+          faded_yellow = '#856614',
+          faded_blue = '#033658',
+          faded_purple = '#6f2f61',
+          faded_aqua = '#225b38',
+          faded_orange = '#8e423e',
+          gray = '#828389',
+        },
+        contrast = 'hard',
+      }
 
-       vim.cmd.colorscheme 'gruvbox'
+      vim.cmd.colorscheme 'gruvbox'
 
-       -- You can configure highlights by doing something like:
-       vim.cmd.hi 'Comment gui=none'
-     end,
-   },
+      -- You can configure highlights by doing something like:
+      vim.cmd.hi 'Comment gui=none'
+    end,
+  },
   -- You can also add new plugins here as well:
   { 'prochri/telescope-all-recent.nvim' },
   {
@@ -1364,44 +1364,86 @@ require('lazy').setup({
           },
         }
       })
-      local gpt4omini = require("elelem").models.gpt4omini
-      local claude_3_5_sonnet = require("elelem").models.claude_3_5_sonnet
-      local llama_8b_groq = require("elelem").models.llama_3_1_8B
+      local quick_model = require("elelem").models.gpt4omini
+      local smart_model = require("elelem").models.claude_3_5_sonnet
+      local next_action_model = require("elelem").models.qwen
+      if env_vars.LAPTOP == "work" then
+        quick_model = require("elelem").models.claude_3_haiku
+        smart_model = require("elelem").models.claude_3_5_sonnet
+        next_action_model = require("elelem").models.claude_3_5_sonnet
+      end
       -- Same as the comments below
       vim.keymap.set('n', '<leader>wq', function()
-        elelem.search_quickfix("Answer only what is asked short and concisely. Give references to the file names when you say something. ", gpt4omini)
+        elelem.search_quickfix(
+          "Answer only what is asked short and concisely. Give references to the file names when you say something. ",
+          quick_model)
       end, { desc = 'Search Quickfix' })
       vim.keymap.set('n', '<leader>wz', function()
-        elelem.ask_llm("Answer only what is asked short and concisely. Give references to the file names when you say something. ", gpt4omini)
+        elelem.ask_llm(
+          "Answer only what is asked short and concisely. Give references to the file names when you say something. ",
+          quick_model)
       end, { desc = 'Search Quickfix' })
-      vim.keymap.set('n', '<leader>wi', function()
-        elelem.search_quickfix("Answer only what is asked short and concisely. Give references to the file names when you say something. ", llama_8b_groq)
-      end, { desc = 'Search Quickfix Instant' })
       vim.keymap.set('n', '<leader>ww', function()
-        elelem.search_current_file("Answer only what is asked short and concisely. ", gpt4omini)
+        elelem.search_current_file("Answer only what is asked short and concisely. ", quick_model)
       end, { desc = 'Query Current File' })
-      vim.keymap.set('n', '<leader>wo', function()
-        elelem.search_current_file("Answer only what is asked short and concisely. ", llama_8b_groq)
-      end, { desc = 'Query Current File Instant' })
       vim.keymap.set('n', '<leader>we', function()
-        elelem.search_current_file("", claude_3_5_sonnet)
+        elelem.search_current_file("", smart_model)
       end, { desc = 'Query Current File with sonnet' })
       vim.keymap.set('n', '<leader>wa', function()
-        elelem.append_llm_output("You write code that will be put in the lines marked with [Append here] and write code for what the user asks. Do not provide any explanations, just write code. Only return code. Only code no explanation", claude_3_5_sonnet)
+        elelem.append_llm_output(
+          "You write code that will be put in the lines marked with [Append here] and write code for what the user asks. Do not provide any explanations, just write code. Only return code. Only code no explanation",
+          smart_model)
       end, { desc = 'Append to cursor location with sonnet' })
       vim.keymap.set('n', '<leader>wd', function()
-        elelem.append_llm_output("You write code that will be put in the lines marked with [Append here] and write code for what the user asks. Do not provide any explanations, just write code. Only return code. Only code no explanation", gpt4omini)
+        elelem.append_llm_output(
+          "You write code that will be put in the lines marked with [Append here] and write code for what the user asks. Do not provide any explanations, just write code. Only return code. Only code no explanation",
+          quick_model)
       end, { desc = 'Append to cursor location with mini' })
+      vim.keymap.set('n', '<leader>wf', function()
+        elelem.context_picker()
+      end)
+      vim.keymap.set('v', '<leader>wca', function()
+        elelem.context.add_visual_selection()
+      end, { desc = 'Add visual selection to context' })
+      vim.keymap.set('n', '<leader>wca', function()
+        elelem.context.add_current_buffer()
+      end, { desc = 'Add current buffer to context' })
+      vim.keymap.set('n', '<leader>wcc', function()
+        elelem.init_new_chat()
+      end, { desc = 'Init new chat' })
+      vim.keymap.set('n', '<leader>wcn', function()
+        elelem.ask_chat(
+          "You are chatting with a developer in their IDE. If you need more context, you can use lsp commands such as go to definition on any piece of code",
+          smart_model)
+      end, { desc = 'Ask chat' })
+      vim.keymap.set('n', '<leader>wn', function()
+        local file = io.open('/Users/ural/.config/nvim/prompts/next_change.md', 'r')
+        if file then
+          local content = file:read('*all')
+          file:close()
 
+          -- Use the content as prompt
+          elelem.ask_next_change(content, next_action_model)
+          return
+        end
+        elelem.ask_next_change(
+          "You are a code assistant, you guess the next actions the user will take given the last change the user made. You respond in git diff format. Try to guess only the most obvious repetitive changes. if you can't guess the next change respond with [no change]. Do not include the change in the prompt in the diff, assume it already changed. Only return the actually changed parts in the diff.",
+          next_action_model)
+      end, { desc = 'Ask chat' })
+      vim.keymap.set('n', '<leader>wr', function()
+        elelem.apply_changes()
+      end, { desc = 'Ask chat' })
 
       vim.keymap.set('v', '<leader>ww', function()
-        elelem.search_visual_selection("", gpt4omini)
+        elelem.search_visual_selection("", quick_model)
       end, { desc = 'Query selection with gpt mini' })
       vim.keymap.set('v', '<leader>we', function()
-        elelem.search_visual_selection("", claude_3_5_sonnet)
+        elelem.search_visual_selection("", smart_model)
       end, { desc = 'Query selection with sonnet' })
       vim.keymap.set('v', '<leader>wa', function()
-        elelem.append_llm_output_visual("You write code that will be put in the lines marked with [Append here] and write code for what the user asks. Do not provide any explanations, just write code. Only return code. Only code no explanation", claude_3_5_sonnet)
+        elelem.append_llm_output_visual(
+          "You write code that will be put in the lines marked with [Append here] and write code for what the user asks. Do not provide any explanations, just write code. Only return code. Only code no explanation",
+          smart_model)
       end, { desc = 'Append selection with sonnet' })
     end
   },
