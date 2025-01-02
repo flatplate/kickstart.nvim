@@ -85,74 +85,74 @@ P.S. You can delete this when you're done too. It's your config now! :)
 --]]
 
 local function is_win()
-  return package.config:sub(1, 1) == '\\'
+	return package.config:sub(1, 1) == '\\'
 end
 
 local function get_path_separator()
-  if is_win() then
-    return '\\'
-  end
-  return '/'
+	if is_win() then
+		return '\\'
+	end
+	return '/'
 end
 
 local function script_path()
-  local str = debug.getinfo(2, 'S').source:sub(2)
-  if is_win() then
-    str = str:gsub('/', '\\')
-  end
-  return str:match('(.*' .. get_path_separator() .. ')')
+	local str = debug.getinfo(2, 'S').source:sub(2)
+	if is_win() then
+		str = str:gsub('/', '\\')
+	end
+	return str:match('(.*' .. get_path_separator() .. ')')
 end
 
 local function read_env_file()
-  local current_path = script_path()
-  print("Reading env file " .. current_path)
-  local env_file = io.open(current_path .. ".env", "r")
-  if not env_file then
-    print("Error: .env file not found")
-    return {}
-  end
-  local env_vars = {}
-  for line in env_file:lines() do
-    local key, value = line:match("^%s*([^=]+)%s*=%s*(.+)%s*$")
-    if key and value then
-      env_vars[key] = value
-    else
-      print("Warning: Invalid line format: " .. line)
-    end
-  end
-  env_file:close()
-  return env_vars
+	local current_path = script_path()
+	print("Reading env file " .. current_path)
+	local env_file = io.open(current_path .. ".env", "r")
+	if not env_file then
+		print("Error: .env file not found")
+		return {}
+	end
+	local env_vars = {}
+	for line in env_file:lines() do
+		local key, value = line:match("^%s*([^=]+)%s*=%s*(.+)%s*$")
+		if key and value then
+			env_vars[key] = value
+		else
+			print("Warning: Invalid line format: " .. line)
+		end
+	end
+	env_file:close()
+	return env_vars
 end
 
 local env_vars = read_env_file()
 local function osDependentConfig(config)
-  local isWindows = vim.loop.os_uname().sysname == 'Windows_NT'
-  if isWindows then
-    return config['windows']
-  end
-  return config['default']
+	local isWindows = vim.loop.os_uname().sysname == 'Windows_NT'
+	if isWindows then
+		return config['windows']
+	end
+	return config['default']
 end
 
 local function getTelescopeOpts(state, path)
-  return {
-    cwd = path,
-    search_dirs = { path },
-    -- attach_mappings = function (prompt_bufnr, map)
-    --   local actions = require "telescope.actions"
-    --   actions.select_default:replace(function()
-    --     actions.close(prompt_bufnr)
-    --     local action_state = require "telescope.actions.state"
-    --     local selection = action_state.get_selected_entry()
-    --     local filename = selection.filename
-    --     if (filename == nil) then
-    --       filename = selection[1]
-    --     end
-    --     -- any way to open the file without triggering auto-close event of neo-tree?
-    --     -- require("neo-tree.sources.filesystem").navigate(state, state.path, filename)
-    --   end)
-    --   return true
-    -- end
-  }
+	return {
+		cwd = path,
+		search_dirs = { path },
+		-- attach_mappings = function (prompt_bufnr, map)
+		--   local actions = require "telescope.actions"
+		--   actions.select_default:replace(function()
+		--     actions.close(prompt_bufnr)
+		--     local action_state = require "telescope.actions.state"
+		--     local selection = action_state.get_selected_entry()
+		--     local filename = selection.filename
+		--     if (filename == nil) then
+		--       filename = selection[1]
+		--     end
+		--     -- any way to open the file without triggering auto-close event of neo-tree?
+		--     -- require("neo-tree.sources.filesystem").navigate(state, state.path, filename)
+		--   end)
+		--   return true
+		-- end
+	}
 end
 
 local DEBOUNCE_DELAY = 300
@@ -160,27 +160,25 @@ local copilot_enabled = true
 
 local timer = vim.loop.new_timer()
 local function debouncedCopilotSuggest()
-  if not copilot_enabled then
-    return
-  end
-local timer = vim.loop.new_timer()
-local function debouncedCopilotSuggest()
-  timer:stop()
-  timer:start(
-    DEBOUNCE_DELAY,
-    0,
-    vim.schedule_wrap(function()
-      vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<Plug>(copilot-suggest)', true, true, true), 'm', true)
-    end)
-  )
+	if not copilot_enabled then
+		return
+	end
+	timer:stop()
+	timer:start(
+		DEBOUNCE_DELAY,
+		0,
+		vim.schedule_wrap(function()
+			vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<Plug>(copilot-suggest)', true, true, true), 'm', true)
+		end)
+	)
 end
 
 local function neovideScale(amount)
-  local temp = vim.g.neovide_scale_factor + amount
-  if temp < 0.5 then
-    return
-  end
-  vim.g.neovide_scale_factor = temp
+	local temp = vim.g.neovide_scale_factor + amount
+	if temp < 0.5 then
+		return
+	end
+	vim.g.neovide_scale_factor = temp
 end
 -- Set <space> as the leader key
 -- See `:help mapleader`
@@ -226,7 +224,7 @@ vim.opt.showmode = false
 --  Remove this option if you want your OS clipboard to remain independent.
 --  See `:help 'clipboard'`
 vim.schedule(function()
-  vim.opt.clipboard = 'unnamedplus'
+	vim.opt.clipboard = 'unnamedplus'
 end)
 
 -- Enable break indent
@@ -418,82 +416,101 @@ vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 -- Diagnostic keymaps
 -- Normal mode mappings
 vim.keymap.set('n', '<C-f>', function()
-  vim.lsp.buf.execute_command { command = '_typescript.organizeImports', arguments = { vim.fn.expand '%:p' } }
-  vim.defer_fn(function()
-    vim.lsp.buf.format()
-    vim.defer_fn(function()
-      vim.cmd 'EslintFixAll'
-    end, 50)
-  end, 50)
+	vim.lsp.buf.execute_command { command = '_typescript.organizeImports', arguments = { vim.fn.expand '%:p' } }
+	vim.defer_fn(function()
+		vim.lsp.buf.format()
+		vim.defer_fn(function()
+			vim.cmd 'EslintFixAll'
+		end, 50)
+	end, 50)
 end, { desc = 'Organize imports and ESLint fix' })
 
 vim.keymap.set('n', '<leader>se', function()
-  VisualSelectError()
+	VisualSelectError()
 end, { desc = 'Visual select error' })
 vim.keymap.set('n', '<C-=>', function()
-  neovideScale(0.1)
+	neovideScale(0.1)
 end, { desc = 'Increase scale' })
 vim.keymap.set('n', '<C-->', function()
-  neovideScale(-0.1)
+	neovideScale(-0.1)
 end, { desc = 'Decrease scale' })
 vim.keymap.set('n', '<C-s>', ':wa<cr>', { desc = 'Save all files' })
 vim.keymap.set('n', '<C-t>', 'A // TODO(flatplate)<esc>', { desc = 'Add todo' })
 vim.keymap.set('n', '<C-q>', '<C-w>q', { desc = 'Close current panel' })
 vim.keymap.set('n', osDependentConfig { windows = '<C-\\>', default = "<C-'>" }, ':ToggleTerm<CR>',
-  { desc = 'Open toggle term' })
+	{ desc = 'Open toggle term' })
 vim.keymap.set('n', '<C-p>', '"qp', { desc = 'Paste from register q' })
 vim.keymap.set('n', '<c-cr>', vim.lsp.buf.code_action, { desc = 'Code action' })
 vim.keymap.set('n', '<c-s-tab>', function()
-  require('telescope.builtin').buffers { sort_lastused = true, ignore_current_buffer = true }
+	require('telescope.builtin').buffers { sort_lastused = true, ignore_current_buffer = true }
 end, { desc = 'Switch buffer' })
 vim.keymap.set('n', '<c-tab>', ':b#<cr>', { desc = 'Switch to last buffer' })
 vim.keymap.set('n', '<c-`>', function()
-  require('telescope.builtin').marks { sort_lastused = true }
+	require('telescope.builtin').marks { sort_lastused = true }
 end, { desc = 'Show marks' })
 vim.keymap.set('n', '<leader>a', ':ArgWrap<cr>', { desc = 'Argument wrapping' })
 vim.keymap.set('n', '<leader>df', ':GoPrintlnFileLine<CR>', { desc = 'Go print file line' })
 vim.keymap.set('n', '<leader>dt', ":pu=strftime('%c')<CR>", { desc = 'Insert current time at cursor' })
 vim.keymap.set('n', '<leader>nd', function()
-  vim.notify.dismiss()
+	vim.notify.dismiss()
 end, { desc = 'Dismiss notifications' })
 vim.keymap.set('n', '<c-s-n>', ':cp<cr>', { desc = 'Previous quickfix item' })
 vim.keymap.set('n', '<c-n>', ':cn<cr>', { desc = 'Next quickfix item' })
 vim.keymap.set('n', '<leader>nn', function()
-  vim.cmd('edit ~/notes.md')
+	vim.cmd('edit ~/notes.md')
 end, { desc = 'Switch to notes file' })
 
+-- Telescope ignore patterns
+local telescope_ignore_patterns = {
+  "[^a-z]test[^a-z]",
+  "[^a-z]mock[^a-z]",
+  "[^a-z]stub[^a-z]",
+  "Test[^a-z]",
+  "Mock[^a-z]",
+  "Stub[^a-z]",
+}
+vim.keymap.set("n", "<leader>fI", function()
+  vim.g.telescope_ignore_enabled = not vim.g.telescope_ignore_enabled
+
+  require("telescope.config").set_defaults({
+    file_ignore_patterns = vim.g.telescope_ignore_enabled and telescope_ignore_patterns or {},
+  })
+end, { noremap = true, desc = "Toggle telescope ignore patterns" })
+
+vim.api.nvim_set_keymap('n', '<leader>oc', ':Octo <C-r>*<CR>', { expr = true, silent = true, noremap = true, replace_keycodes = false, desc = 'Open octo from register' })
+vim.api.nvim_set_keymap('n', '<leader>op', ':Octo search is:pr author:@me<CR>', { desc = 'Open octo my pull requests' })
 -- Telescope mappings
-vim.keymap.set('n', '<leader>fq', function()
-  require('telescope').extensions.live_grep_args.live_grep_args()
+vim.keymap.set('n', '<leader>f[', function()
+	require('telescope').extensions.live_grep_args.live_grep_args()
 end, { desc = 'Live grep with args' })
 vim.keymap.set('n', '<leader>ff', ':Telescope find_files hidden=true<CR>', { desc = 'Find files' })
 vim.keymap.set('n', '<leader>fb', ':Telescope vim_bookmarks all<CR>', { desc = 'Find bookmarks' })
 vim.keymap.set('n', '<leader>fp', function()
-  require('telescope.builtin').live_grep { grep_open_files = true }
+	require('telescope.builtin').live_grep { grep_open_files = true }
 end, { desc = 'Search in open files' })
 vim.keymap.set('n', '<leader>fg', function()
-  local path = vim.fn.expand '%:p:h'
-  require('telescope.builtin').git_status(getTelescopeOpts(vim.fn.getcwd(), path))
+	local path = vim.fn.expand '%:p:h'
+	require('telescope.builtin').git_status(getTelescopeOpts(vim.fn.getcwd(), path))
 end, { desc = 'Telescope git diff files' })
 vim.keymap.set('n', '<leader>ft', function()
-  require('telescope.builtin').git_status { cwd = vim.fn.expand '%:p:h' }
+	require('telescope.builtin').git_status { cwd = vim.fn.expand '%:p:h' }
 end, { desc = 'Git status in current directory' })
 vim.keymap.set('n', '<leader>fc', function()
-  require('telescope-live-grep-args.shortcuts').grep_word_under_cursor()
+	require('telescope-live-grep-args.shortcuts').grep_word_under_cursor()
 end, { desc = 'Grep word under cursor' })
 vim.keymap.set('n', '<leader>fi', function()
-  vim.cmd 'noau normal! "zyiw"'
-  require('telescope.builtin').find_files { search_file = vim.fn.getreg 'z' }
+	vim.cmd 'noau normal! "zyiw"'
+	require('telescope.builtin').find_files { search_file = vim.fn.getreg 'z' }
 end, { desc = 'Find files with word under cursor' })
 vim.keymap.set('n', '<leader>fr', ':Telescope resume<CR>', { desc = 'Resume last Telescope' })
 vim.keymap.set('n', '<leader>e', function()
-  vim.cmd("Neotree toggle")
+	vim.cmd("Neotree toggle")
 end, { desc = 'Help tags' })
 vim.keymap.set('n', '<leader>oo', function()
-  vim.cmd("Neotree")
+	vim.cmd("Neotree")
 end, { desc = 'Help tags' })
 vim.keymap.set('n', '<leader>oi', function()
-  vim.cmd("Neotree filesystem reveal_file=%")
+	vim.cmd("Neotree filesystem reveal_file=%")
 end, { desc = 'Help tags' })
 
 -- Other mappings
@@ -502,43 +519,43 @@ vim.keymap.set('n', 'gv', ':vsplit<CR>gd', { desc = 'Split and go to definition'
 vim.keymap.set('n', '<leader>sr', 'yiw:%s/<C-R>*', { desc = 'Search and replace word under cursor (file)' })
 vim.keymap.set('n', '<leader>ss', 'yiw:s/<C-R>*/', { desc = 'Search and replace word under cursor (line)' })
 vim.keymap.set('n', '<leader>bb', function()
-  require('harpoon.mark').add_file()
+	require('harpoon.mark').add_file()
 end, { desc = 'Add file to harpoon' })
 vim.keymap.set('n', '<c-1>', function()
-  require('harpoon.ui').toggle_quick_menu()
+	require('harpoon.ui').toggle_quick_menu()
 end, { desc = 'Harpoon quick menu' })
 vim.keymap.set('n', '<leader>i', function()
-  vim.lsp.buf.code_action {
-    apply = true,
-    context = {
-      only = { 'source.addMissingImports.ts' },
-    },
-  }
-  vim.cmd 'write'
+	vim.lsp.buf.code_action {
+		apply = true,
+		context = {
+			only = { 'source.addMissingImports.ts' },
+		},
+	}
+	vim.cmd 'write'
 end, { desc = 'Fix imports' })
 vim.keymap.set('n', '<leader>gr', function()
-  require('telescope.builtin').lsp_references { layout_strategy = 'cursor', layout_config = { width = 0.99, height = 0.4 } }
+	require('telescope.builtin').lsp_references { layout_strategy = 'cursor', layout_config = { width = 0.99, height = 0.4 } }
 end, { desc = 'Telescope LSP references' })
 
 -- Terminal mode mappings
 vim.keymap.set('t', '<esc>', '<C-\\><C-n>', { desc = 'To normal mode in terminal' })
 vim.keymap.set('t', osDependentConfig { windows = '<C-\\>', default = "<C-'>" }, '<C-\\><C-n>:ToggleTerm<CR>',
-  { desc = 'Close toggle term' })
+	{ desc = 'Close toggle term' })
 
 -- Insert mode mappings
 vim.keymap.set('i', '<C-p>', '<esc>:Telescope oldfiles<CR>', { desc = 'Find old files' })
 vim.keymap.set('i', '<c-s-tab>', function()
-  require('telescope.builtin').buffers { sort_lastused = true, ignore_current_buffer = true }
+	require('telescope.builtin').buffers { sort_lastused = true, ignore_current_buffer = true }
 end, { desc = 'Switch buffer' })
 vim.keymap.set('i', '<c-tab>', '<esc>:b#<cr>a', { desc = 'Switch to last buffer' })
 vim.keymap.set('i', 'jj', '<esc>', { desc = 'jj to escape' })
 vim.keymap.set('i', '<c-l>', function()
-  return vim.fn['copilot#Accept'] '<CR>'
+	return vim.fn['copilot#Accept'] '<CR>'
 end, { expr = true, silent = true, noremap = true, replace_keycodes = false, desc = 'Accept Copilot suggestion' })
 vim.keymap.set('i', '<c-d>', '<c-o>dd',
-  { silent = true, noremap = true, replace_keycodes = false, desc = 'Delete line in insert mode' })
+	{ silent = true, noremap = true, replace_keycodes = false, desc = 'Delete line in insert mode' })
 vim.keymap.set('i', '<c-h>', '<C-o>diW',
-  { silent = true, noremap = true, replace_keycodes = false, desc = 'Delete WORD' })
+	{ silent = true, noremap = true, replace_keycodes = false, desc = 'Delete WORD' })
 
 -- vim.keymap.set('i', '<c-i>', function()
 --   require('cmp').mapping.complete()
@@ -548,16 +565,16 @@ vim.keymap.set('i', '<c-h>', '<C-o>diW',
 
 -- Visual mode mappings
 vim.keymap.set('v', '<leader>re', function(opts)
-  require('react-extract').extract_to_new_file(opts)
+	require('react-extract').extract_to_new_file(opts)
 end, { desc = 'React extract to new file' })
 vim.keymap.set('v', '<leader>rf', function(opts)
-  require('react-extract').extract_to_current_file(opts)
+	require('react-extract').extract_to_current_file(opts)
 end, { desc = 'React extract to current file' })
 vim.keymap.set('v', '<leader>fc', function()
-  require('telescope-live-grep-args.shortcuts').grep_visual_selection()
+	require('telescope-live-grep-args.shortcuts').grep_visual_selection()
 end, { desc = 'Grep visual selection' })
 vim.keymap.set('v', '<c-cr>', function()
-  vim.lsp.buf.range_code_action()
+	vim.lsp.buf.range_code_action()
 end, { desc = 'Range code action' })
 -- Set highlight on search, but clear on pressing <Esc> in normal mode
 vim.opt.hlsearch = true
@@ -599,85 +616,85 @@ vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper win
 --  Try it with `yap` in normal mode
 --  See `:help vim.highlight.on_yank()`
 vim.api.nvim_create_autocmd('TextYankPost', {
-  desc = 'Highlight when yanking (copying) text',
-  group = vim.api.nvim_create_augroup('kickstart-highlight-yank', { clear = true }),
-  callback = function()
-    vim.highlight.on_yank()
-  end,
+	desc = 'Highlight when yanking (copying) text',
+	group = vim.api.nvim_create_augroup('kickstart-highlight-yank', { clear = true }),
+	callback = function()
+		vim.highlight.on_yank()
+	end,
 })
 
 -- Add autocommand to run on DirChanged and call set_colorscheme
 vim.api.nvim_create_autocmd('DirChanged', {
-  desc = 'Set colorscheme based on cwd',
-  group = vim.api.nvim_create_augroup('kickstart-set-colorscheme', { clear = true }),
-  callback = function()
-    vim.cmd 'silent! colorscheme gruvbox'
-  end,
+	desc = 'Set colorscheme based on cwd',
+	group = vim.api.nvim_create_augroup('kickstart-set-colorscheme', { clear = true }),
+	callback = function()
+		vim.cmd 'silent! colorscheme gruvbox'
+	end,
 })
 
 vim.api.nvim_create_augroup('packer_conf', { clear = true })
 vim.api.nvim_create_autocmd('BufWritePost', {
-  desc = 'Sync packer after modifying plugins.lua',
-  group = 'packer_conf',
-  pattern = 'plugins.lua',
-  command = 'source <afile> | PackerSync',
+	desc = 'Sync packer after modifying plugins.lua',
+	group = 'packer_conf',
+	pattern = 'plugins.lua',
+	command = 'source <afile> | PackerSync',
 })
 vim.api.nvim_create_autocmd('TextChangedI', {
-  callback = function()
-    debouncedCopilotSuggest()
-  end,
+	callback = function()
+		debouncedCopilotSuggest()
+	end,
 })
 vim.api.nvim_create_user_command('CopyLines', function(opts)
-  vim.cmd 'noau visual! qaq'
-  vim.cmd('g/' .. opts.args .. '/y A')
-  vim.cmd 'let @+ = @a'
+	vim.cmd 'noau visual! qaq'
+	vim.cmd('g/' .. opts.args .. '/y A')
+	vim.cmd 'let @+ = @a'
 end, { nargs = 1 })
 
 vim.api.nvim_create_user_command('CopyFileAndLine', function(opts)
-  vim.cmd 'let @*=join([expand("%"),  line(".")], ":")'
+	vim.cmd 'let @*=join([expand("%"),  line(".")], ":")'
 end, { nargs = 0 })
 
 vim.api.nvim_create_user_command('OpenLLMSearchBuffer', function(opts)
-  vim.api.nvim_win_set_buf(vim.api.nvim_get_current_win(), vim.fn.bufnr("LLM Search Results"))
+	vim.api.nvim_win_set_buf(vim.api.nvim_get_current_win(), vim.fn.bufnr("LLM Search Results"))
 end, { nargs = 0 })
 
 vim.api.nvim_create_user_command('ToggleCopilot', function(opts)
-  copilot_enabled = not copilot_enabled
+	copilot_enabled = not copilot_enabled
 end, { nargs = 0 })
 
 vim.api.nvim_create_user_command('CloseAllBuffers', function(opts)
-  vim.cmd '%bd|e#'
+	vim.cmd '%bd|e#'
 end, { nargs = 0 })
 
 vim.api.nvim_create_user_command('GoPrintlnFileLine', function(opts)
-  local path = vim.fn.getreg '%'
-  local file = path:match '([^/]+)$'
+	local path = vim.fn.getreg '%'
+	local file = path:match '([^/]+)$'
 
-  local line_num = vim.api.nvim_win_get_cursor(0)[1]
+	local line_num = vim.api.nvim_win_get_cursor(0)[1]
 
-  vim.cmd('let @z="' .. file .. ':' .. line_num .. '"')
-  vim.cmd 'execute "normal ofmt.Println(\\""'
-  vim.cmd 'execute "normal\\"zp"'
-  vim.cmd 'execute "i\\")"'
+	vim.cmd('let @z="' .. file .. ':' .. line_num .. '"')
+	vim.cmd 'execute "normal ofmt.Println(\\""'
+	vim.cmd 'execute "normal\\"zp"'
+	vim.cmd 'execute "i\\")"'
 end, { nargs = 0 })
 
 vim.api.nvim_create_user_command('CopySearch', function(opts)
-  local hits = {}
+	local hits = {}
 
-  -- This function gets executed for each occurrence of the search pattern
-  local function replacer()
-    table.insert(hits, vim.fn.submatch(0))
-    return vim.fn.submatch(0)
-  end
+	-- This function gets executed for each occurrence of the search pattern
+	local function replacer()
+		table.insert(hits, vim.fn.submatch(0))
+		return vim.fn.submatch(0)
+	end
 
-  -- Use the substitution command with the replacer function
-  vim.api.nvim_exec(string.format '%%s///\\=v:lua.copy_matches_neovim.replacer()//gne', false)
+	-- Use the substitution command with the replacer function
+	vim.api.nvim_exec(string.format '%%s///\\=v:lua.copy_matches_neovim.replacer()//gne', false)
 
-  -- If no register is provided, use the clipboard register "+"
-  reg = opts.reg or '+'
+	-- If no register is provided, use the clipboard register "+"
+	reg = opts.reg or '+'
 
-  -- Set the contents of the chosen register to the hits
-  vim.fn.setreg(reg, table.concat(hits, '\n') .. '\n', 'l')
+	-- Set the contents of the chosen register to the hits
+	vim.fn.setreg(reg, table.concat(hits, '\n') .. '\n', 'l')
 end, { range = true, register = true })
 
 -- TODO Create an autocommand for autosave
@@ -695,11 +712,11 @@ vim.cmd [[
 --    See `:help lazy.nvim.txt` or https://github.com/folke/lazy.nvim for more info
 local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
 if not (vim.uv or vim.loop).fs_stat(lazypath) then
-  local lazyrepo = 'https://github.com/folke/lazy.nvim.git'
-  local out = vim.fn.system { 'git', 'clone', '--filter=blob:none', '--branch=stable', lazyrepo, lazypath }
-  if vim.v.shell_error ~= 0 then
-    error('Error cloning lazy.nvim:\n' .. out)
-  end
+	local lazyrepo = 'https://github.com/folke/lazy.nvim.git'
+	local out = vim.fn.system { 'git', 'clone', '--filter=blob:none', '--branch=stable', lazyrepo, lazypath }
+	if vim.v.shell_error ~= 0 then
+		error('Error cloning lazy.nvim:\n' .. out)
+	end
 end ---@diagnostic disable-next-line: undefined-field
 vim.opt.rtp:prepend(lazypath)
 
@@ -1844,27 +1861,25 @@ require('lazy').setup({
   --    For additional information, see `:help lazy.nvim-lazy.nvim-structuring-your-plugins`
   { import = 'custom.plugins' },
 }, {
-  ui = {
-    -- If you are using a Nerd Font: set icons to an empty table which will use the
-    -- default lazy.nvim defined Nerd Font icons, otherwise define a unicode icons table
-    icons = vim.g.have_nerd_font and {} or {
-      cmd = '⌘',
-      config = '🛠',
-      event = '📅',
-      ft = '📂',
-      init = '⚙',
-      keys = '🗝',
-      plugin = '🔌',
-      runtime = '💻',
-      require = '🌙',
-      source = '📄',
-      start = '🚀',
-      task = '📌',
-      lazy = '💤 ',
-    },
-  },
+	ui = {
+		-- If you are using a Nerd Font: set icons to an empty table which will use the
+		-- default lazy.nvim defined Nerd Font icons, otherwise define a unicode icons table
+		icons = vim.g.have_nerd_font and {} or {
+			cmd = '⌘',
+			config = '🛠',
+			event = '📅',
+			ft = '📂',
+			init = '⚙',
+			keys = '🗝',
+			plugin = '🔌',
+			runtime = '💻',
+			require = '🌙',
+			source = '📄',
+			start = '🚀',
+			task = '📌',
+			lazy = '💤 ',
+		},
+	},
 })
-
-set_colorscheme()
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et[Append here]
