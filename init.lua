@@ -1641,7 +1641,7 @@ require('lazy').setup({
     end,
   },
   {
-    dir = '/Users/ural.bayhan/personal/elelem.nvim/',
+    'flatplate/elelem.nvim',
     config = function()
       local elelem = require 'elelem'
       elelem.setup {
