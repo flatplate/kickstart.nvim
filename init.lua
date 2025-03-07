@@ -324,10 +324,10 @@ vim.keymap.set('n', '<leader>fb', ':Telescope vim_bookmarks all<CR>', { desc = '
 vim.keymap.set('n', '<leader>fp', function()
   require('telescope.builtin').live_grep { grep_open_files = true }
 end, { desc = 'Search in open files' })
-vim.keymap.set('n', '<leader>fg', function()
-  local path = vim.fn.expand '%:p:h'
-  require('telescope.builtin').git_status(getTelescopeOpts(vim.fn.getcwd(), path))
-end, { desc = 'Telescope git diff files' })
+-- vim.keymap.set('n', '<leader>fg', function()
+--   local path = vim.fn.expand '%:p:h'
+--   require('telescope.builtin').git_status(getTelescopeOpts(vim.fn.getcwd(), path))
+-- end, { desc = 'Telescope git diff files' })
 vim.keymap.set('n', '<leader>ft', function()
   require('telescope.builtin').git_status { cwd = vim.fn.expand '%:p:h' }
 end, { desc = 'Git status in current directory' })
@@ -492,10 +492,10 @@ vim.keymap.set('n', '<leader>fb', ':Telescope vim_bookmarks all<CR>', { desc = '
 vim.keymap.set('n', '<leader>fp', function()
   require('telescope.builtin').live_grep { grep_open_files = true }
 end, { desc = 'Search in open files' })
-vim.keymap.set('n', '<leader>fg', function()
-  local path = vim.fn.expand '%:p:h'
-  require('telescope.builtin').git_status(getTelescopeOpts(vim.fn.getcwd(), path))
-end, { desc = 'Telescope git diff files' })
+-- vim.keymap.set('n', '<leader>fg', function()
+--   local path = vim.fn.expand '%:p:h'
+--   require('telescope.builtin').git_status(getTelescopeOpts(vim.fn.getcwd(), path))
+-- end, { desc = 'Telescope git diff files' })
 vim.keymap.set('n', '<leader>ft', function()
   require('telescope.builtin').git_status { cwd = vim.fn.expand '%:p:h' }
 end, { desc = 'Git status in current directory' })
@@ -1136,10 +1136,198 @@ require('lazy').setup({
   --
   -- Use the `dependencies` key to specify the dependencies of a particular plugin
 
+  {
+    'ibhagwan/fzf-lua',
+    -- optional for icon support
+    dependencies = { 'nvim-tree/nvim-web-devicons' },
+    -- or if using mini.icons/mini.nvim
+    -- dependencies = { "echasnovski/mini.icons" },
+    opts = {},
+    config = function()
+      local fzf_lua = require 'fzf-lua'
+      fzf_lua.setup {
+        'telescope',
+        -- Global options
+        global_resume = true, -- enable global resume
+        global_resume_query = true, -- include query in resume
+        defaults = {
+          formatter = 'path.filename_first',
+        },
+        winopts = {
+          height = 0.85,
+          width = 0.80,
+          preview = {
+            scrollbar = 'float',
+            layout = 'flex',
+            title = true,
+          },
+        },
+
+        -- Customize keybindings to match your preferences
+        keymap = {
+          builtin = {
+            ['<C-d>'] = 'preview-page-down',
+            ['<C-u>'] = 'preview-page-up',
+          },
+        },
+
+        -- Files setup similar to your telescope config
+        files = {
+          prompt = 'Files❯ ',
+          file_icons = true,
+          color_icons = true,
+          git_icons = true,
+          find_opts = [[-type f -not -path '*/\.git/*' -not -path '*/node_modules/*']],
+          fd_opts = '--color=never --type f --hidden --follow --exclude .git --exclude node_modules',
+          formatter = 'path.filename_first',
+          actions = {
+            ['default'] = fzf_lua.actions.file_edit,
+          },
+        },
+
+        -- Live grep configuration similar to your telescope setup
+        live_grep = {
+          prompt = 'Live Grep❯ ',
+          file_icons = true,
+          color_icons = true,
+          git_icons = true,
+          grep_opts = '--binary-files=without-match --line-number --recursive --color=always --perl-regexp',
+          rg_opts = '--column --line-number --no-heading --color=always --smart-case --max-columns=512',
+          -- Add any patterns you want to exclude
+          rg_glob = true,
+          glob_flag = '--iglob',
+          glob_separator = '%s%-%-',
+        },
+
+        -- Git configuration
+        git = {
+          files = {
+            prompt = 'Git Files❯ ',
+            git_icons = true,
+            file_icons = true,
+            color_icons = true,
+          },
+          status = {
+            prompt = 'Git Status❯ ',
+            git_icons = true,
+            file_icons = true,
+            color_icons = true,
+          },
+        },
+
+        -- LSP configuration
+        lsp = {
+          code_actions = {
+            prompt = 'Code Actions❯ ',
+          },
+          finder = {
+            prompt = 'LSP Finder❯ ',
+          },
+        },
+
+        -- Buffer configuration
+        buffers = {
+          prompt = 'Buffers❯ ',
+          file_icons = true,
+          color_icons = true,
+          sort_lastused = true,
+        },
+      }
+
+      -- Set up key mappings that match your current telescope bindings
+      vim.keymap.set('n', '<leader>fo', function()
+        fzf_lua.buffers { sort_lastused = true, ignore_current_buffer = true }
+      end, { desc = 'Find files' })
+      vim.keymap.set('n', '<leader>ff', function()
+        fzf_lua.files()
+      end, { desc = 'Find files' })
+      vim.keymap.set('n', '<leader>fb', function()
+        fzf_lua.buffers()
+      end, { desc = 'Find buffers' })
+      vim.keymap.set('n', '<leader>fp', function()
+        fzf_lua.live_grep { grep_open_files = true }
+      end, { desc = 'Search in open files' })
+      vim.keymap.set('n', '<leader>fg', function()
+        -- Get current file's directory
+        local current_dir = vim.fn.expand '%:p:h'
+        -- Try to get git root using git rev-parse
+        local git_root = vim.fn.system(string.format('cd %s && git rev-parse --show-toplevel', vim.fn.shellescape(current_dir)))
+        git_root = vim.fn.trim(git_root)
+
+        -- Check if the path exists/is valid
+        local is_valid_dir = vim.fn.isdirectory(git_root) == 1
+        -- Use git root if valid, otherwise fallback to current directory
+        local search_dir = is_valid_dir and git_root or current_dir
+
+        -- Call fzf-lua git_status with the determined directory
+        fzf_lua.git_status { cwd = search_dir }
+      end, { desc = 'Git status in current directory' })
+      vim.keymap.set('n', '<leader>ft', function()
+        fzf_lua.git_status { cwd = vim.fn.expand '%:p:h' }
+      end, { desc = 'Git status in current directory' })
+      vim.keymap.set('n', '<leader>fc', function()
+        fzf_lua.grep_cword()
+      end, { desc = 'Grep word under cursor' })
+      vim.keymap.set('n', '<leader>fi', function()
+        vim.cmd 'noau normal! "zyiw"'
+        fzf_lua.files { search_file = vim.fn.getreg 'z' }
+      end, { desc = 'Find files with word under cursor' })
+      vim.keymap.set('n', '<leader>fr', function()
+        fzf_lua.resume()
+      end, { desc = 'Resume last search' })
+      vim.keymap.set('n', '<leader>fq', function()
+        fzf_lua.grep {} -- Similar to telescope live_grep_args
+      end, { desc = 'Live grep with args' })
+      vim.keymap.set('n', '<leader>fw', function()
+        fzf_lua.live_grep()
+      end, { desc = 'Live grep' })
+      vim.keymap.set('v', '<leader>fc', function()
+        fzf_lua.grep_visual()
+      end, { desc = 'Grep visual selection' })
+      vim.keymap.set('n', '<c-g>', function()
+        fzf_lua.grep()
+      end, { desc = 'Grep' })
+      vim.keymap.set('n', '<leader>gr', function()
+        fzf_lua.lsp_references {
+          winopts = {
+            layout = 'cursor',
+            height = 0.4,
+            width = 0.99,
+          },
+        }
+      end, { desc = 'Find LSP references' })
+      vim.keymap.set('n', '<c-s-tab>', function()
+        fzf_lua.buffers { sort_lastused = true, ignore_current_buffer = true }
+      end, { desc = 'Switch buffer' })
+      vim.keymap.set('n', '<c-`>', function()
+        fzf_lua.marks()
+      end, { desc = 'Show marks' })
+
+      -- LSP related mappings
+      vim.keymap.set('n', 'gd', function()
+        fzf_lua.lsp_definitions()
+      end, { desc = 'Go to definition' })
+      vim.keymap.set('n', 'gr', function()
+        fzf_lua.lsp_references()
+      end, { desc = 'Find references' })
+      vim.keymap.set('n', 'gI', function()
+        fzf_lua.lsp_implementations()
+      end, { desc = 'Go to implementation' })
+      vim.keymap.set('n', '<leader>D', function()
+        fzf_lua.lsp_typedefs()
+      end, { desc = 'Type definition' })
+      vim.keymap.set('n', '<leader>ds', function()
+        fzf_lua.lsp_document_symbols()
+      end, { desc = 'Document symbols' })
+      vim.keymap.set('n', '<leader>ws', function()
+        fzf_lua.lsp_workspace_symbols()
+      end, { desc = 'Workspace symbols' })
+    end,
+  },
   { -- Fuzzy Finder (files, lsp, etc)
     'nvim-telescope/telescope.nvim',
     event = 'VimEnter',
-    branch = 'master',
+    branch = '0.1.x',
     dependencies = {
       'nvim-lua/plenary.nvim',
       { -- If encountering errors, see telescope-fzf-native README for installation instructions
@@ -1216,16 +1404,16 @@ require('lazy').setup({
 
       -- See `:help telescope.builtin`
       local builtin = require 'telescope.builtin'
-      vim.keymap.set('n', '<leader>fh', builtin.help_tags, { desc = '[S]earch [H]elp' })
-      vim.keymap.set('n', '<leader>fk', builtin.keymaps, { desc = '[S]earch [K]eymaps' })
-      vim.keymap.set('n', '<leader>ff', builtin.find_files, { desc = '[S]earch [F]iles' })
-      vim.keymap.set('n', '<leader>fs', builtin.builtin, { desc = '[S]earch [S]elect Telescope' })
-      vim.keymap.set('n', '<leader>fc', builtin.grep_string, { desc = '[S]earch current [W]ord' })
-      vim.keymap.set('n', '<leader>fw', builtin.live_grep, { desc = '[S]earch by [G]rep' })
-      vim.keymap.set('n', '<leader>fd', builtin.diagnostics, { desc = '[S]earch [D]iagnostics' })
-      vim.keymap.set('n', '<leader>fr', builtin.resume, { desc = '[S]earch [R]esume' })
-      vim.keymap.set('n', '<leader>fo', builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
-      vim.keymap.set('n', '<leader><leader>', builtin.buffers, { desc = '[ ] Find existing buffers' })
+      --vim.keymap.set('n', '<leader>fh', builtin.help_tags, { desc = '[S]earch [H]elp' })
+      --vim.keymap.set('n', '<leader>fk', builtin.keymaps, { desc = '[S]earch [K]eymaps' })
+      --vim.keymap.set('n', '<leader>ff', builtin.find_files, { desc = '[S]earch [F]iles' })
+      --vim.keymap.set('n', '<leader>fs', builtin.builtin, { desc = '[S]earch [S]elect Telescope' })
+      --vim.keymap.set('n', '<leader>fc', builtin.grep_string, { desc = '[S]earch current [W]ord' })
+      --vim.keymap.set('n', '<leader>fw', builtin.live_grep, { desc = '[S]earch by [G]rep' })
+      --vim.keymap.set('n', '<leader>fd', builtin.diagnostics, { desc = '[S]earch [D]iagnostics' })
+      --vim.keymap.set('n', '<leader>fr', builtin.resume, { desc = '[S]earch [R]esume' })
+      --vim.keymap.set('n', '<leader>fo', builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
+      --vim.keymap.set('n', '<leader><leader>', builtin.buffers, { desc = '[ ] Find existing buffers' })
 
       -- Slightly advanced example of overriding default behavior and theme
       vim.keymap.set('n', '<leader>/', function()
@@ -1328,27 +1516,27 @@ require('lazy').setup({
           -- Jump to the definition of the word under your cursor.
           --  This is where a variable was first declared, or where a function is defined, etc.
           --  To jump back, press <C-t>.
-          map('gd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
+          -- map('gd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
 
           -- Find references for the word under your cursor.
-          map('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
+          -- map('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
 
           -- Jump to the implementation of the word under your cursor.
           --  Useful when your language has ways of declaring types without an actual implementation.
-          map('gI', require('telescope.builtin').lsp_implementations, '[G]oto [I]mplementation')
+          -- map('gI', require('telescope.builtin').lsp_implementations, '[G]oto [I]mplementation')
 
           -- Jump to the type of the word under your cursor.
           --  Useful when you're not sure what type a variable is and you want to see
           --  the definition of its *type*, not where it was *defined*.
-          map('<leader>D', require('telescope.builtin').lsp_type_definitions, 'Type [D]efinition')
+          -- map('<leader>D', require('telescope.builtin').lsp_type_definitions, 'Type [D]efinition')
 
           -- Fuzzy find all the symbols in your current document.
           --  Symbols are things like variables, functions, types, etc.
-          map('<leader>ds', require('telescope.builtin').lsp_document_symbols, '[D]ocument [S]ymbols')
+          -- map('<leader>ds', require('telescope.builtin').lsp_document_symbols, '[D]ocument [S]ymbols')
 
           -- Fuzzy find all the symbols in your current workspace.
           --  Similar to document symbols, except searches over your entire project.
-          map('<leader>ws', require('telescope.builtin').lsp_dynamic_workspace_symbols, '[W]orkspace [S]ymbols')
+          -- map('<leader>ws', require('telescope.builtin').lsp_dynamic_workspace_symbols, '[W]orkspace [S]ymbols')
 
           -- Lsp diagnostics
           map('<leader>ld', vim.diagnostic.open_float, '[L]sp [D]iagnostics')
@@ -1671,6 +1859,9 @@ require('lazy').setup({
         model_configs.smart_model = elelem.models.claude_3_5_sonnet
         model_configs.next_action_model = elelem.models.claude_3_5_sonnet
       end
+      vim.api.nvim_create_user_command('AddTool', elelem.telescope_add_tool, {
+        nargs = '*',
+      })
       -- Create ChangeModel command with telescope picker
       vim.api.nvim_create_user_command('ChangeModel', function(opts)
         local actions = require 'telescope.actions'
