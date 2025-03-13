@@ -1847,12 +1847,15 @@ require('lazy').setup({
             api_key = env_vars.GROQ_API_KEY,
           },
         },
+        tools = {
+          default_tools = { 'replace', 'lsp_query', 'cli' },
+        },
       }
 
       local model_configs = {
         quick_model = env_vars.LAPTOP == 'work' and elelem.models.claude_3_haiku or elelem.models.gpt4omini,
-        smart_model = elelem.models.claude_3_5_sonnet,
-        next_action_model = env_vars.LAPTOP == 'work' and elelem.models.claude_3_5_sonnet or elelem.models.qwen,
+        smart_model = elelem.models.claude_3_7_sonnet,
+        next_action_model = env_vars.LAPTOP == 'work' and elelem.models.claude_3_7_sonnet or elelem.models.qwen,
       }
       if env_vars.LAPTOP == 'work' then
         model_configs.quick_model = elelem.models.claude_3_haiku
