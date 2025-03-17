@@ -458,6 +458,31 @@ vim.keymap.set('n', '<c-n>', ':cn<cr>', { desc = 'Next quickfix item' })
 vim.keymap.set('n', '<leader>nn', function()
   vim.cmd 'edit ~/notes.md'
 end, { desc = 'Switch to notes file' })
+vim.keymap.set('n', '<leader>nf', function()
+  require('fzf-lua').files {
+    cwd = '~/notes/',
+    prompt = 'Notes> ',
+    file_icons = true,
+    color_icons = true,
+  }
+end, { desc = 'Search in notes folder' })
+vim.keymap.set('n', '<leader>nn', function()
+  -- Prompt for the note name
+  vim.ui.input({ prompt = 'New note name: ' }, function(input)
+    if input and input ~= '' then
+      -- Create the file path (assuming markdown format)
+      local filename = '~/notes/' .. input
+
+      -- Add .md extension if not provided
+      if not filename:match '%.%w+$' then
+        filename = filename .. '.md'
+      end
+
+      -- Open the new file for editing
+      vim.cmd('e ' .. vim.fn.expand(filename))
+    end
+  end)
+end, { desc = 'Create a new note' })
 
 -- Telescope ignore patterns
 local telescope_ignore_patterns = {
@@ -848,6 +873,12 @@ require('lazy').setup({
       -- return the new table to be used
       return opts
     end,
+  },
+  {
+    'Olical/conjure',
+    lazy = false,
+    ft = { 'clojure' },
+    dependencies = { 'PaterJason/cmp-conjure' },
   },
   {
     'napmn/react-extract.nvim',
@@ -1848,7 +1879,7 @@ require('lazy').setup({
           },
         },
         tools = {
-          default_tools = { 'replace', 'lsp_query', 'cli' },
+          default_tools = {},
         },
       }
 
